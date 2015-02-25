@@ -12,7 +12,7 @@ CNT=0;
 
 if ipset -t list|grep -v -q ${SETNAME}; then 
     echo "creating new set ${SETNAME}"
-#    ipset create ${SETNAME} hash:ip
+    ipset create ${SETNAME} hash:ip
 fi
 
 if test -f /tmp/${SETNAME}; then rm /tmp/${SETNAME};fi
