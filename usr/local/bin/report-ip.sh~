@@ -1,0 +1,16 @@
+#!/bin/sh
+
+COUNT=0
+
+ipset list banned-copy | while read LINE; do
+  
+  COUNT=$(($COUNT + 1))
+  if test $COUNT -gt 6; then
+      wget https://www.badips.com/add/ssh/${LINE}?key=71977f3a9fe6184047fc7702558b6c5e78fa6dcd -O - >/dev/null
+      ipset del banned-copy $LINE
+      echo
+  fi
+  
+done
+
+

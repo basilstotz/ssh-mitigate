@@ -1,0 +1,14 @@
+#!/bin/sh
+#env >> /tmp/ipset-ssh
+IP=$(host $PAM_RHOST|cut -d\  -f4)
+#echo $IP >>/tmp/ipset-ssh
+#echo
+if [ -f /proc/net/xt_recent/DEFAULT ]; then
+   if test "$PAM_TYPE" = "open_session"; then
+      echo "-${IP} / ${PAM_RHOST}" >> /tmp/ipset-ssh
+      # echo >>/tmp/ipset-ssh
+      echo "-${IP}" > /proc/net/xt_recent/DEFAULT
+   #else
+      #echo $PAM_TYPE >>/tmp/ipset-ssh
+   fi
+fi

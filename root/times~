@@ -1,0 +1,25 @@
+#!/bin/sh
+
+FILE=/proc/net/xt_recent/DEFAULT #This is file name of recent module output. It may vary on your system (like iplist)
+
+printit()
+{
+Len=`echo $1|wc -c`
+Date=$DATE
+Dot="."
+Loop=`echo 50-$Len|bc`
+loop=0
+while [ $loop -le $Loop ]
+do
+loop=`echo $loop+1|bc`
+Dot=`echo $Dot.`
+done
+echo "$1$Dot$DATE"
+}
+cat $FILE|while read LINE
+do
+IP=`echo $LINE|awk '{print $1}'|awk -F= {'print $2'}`
+DATE=`echo $LINE|awk '{print (system("date -d @$(($(date +'%s')-($(cat /proc/timer_list|grep -m1 -E '^jiffies'|cut -d\" \" -f2)-" $5 ")/1000))"));}'|head -1 `
+echo $IP $DATE
+#printit $IP $DATE
+done

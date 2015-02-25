@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# edit this to your needs
+SCORE=1
+SETNAME="badips"
+#CATEGORIES="ssh https"
+CATEGORIES="ssh"
+
+
+TEMPSET="tempset"
+CNT=0;
+
+if ipset -t list|grep -v -q ${SETNAME}; then 
+    echo "creating new set ${SETNAME}"
+#    ipset create ${SETNAME} hash:ip
+fi
+
+if test -f /tmp/${SETNAME}; then rm /tmp/${SETNAME};fi
+
+for CATEGORY in $CATEGORIES; do
+  wget https://www.badips.com/get/list/${CATEGORY}/${SCORE} -O - >>/tmp/${SETNAME} || exit 1
+done
+
+CNT=$(cat /tmp/${SETNAME}|wc -l)
+
+if test $CNT -gt 64000; then 
+   echo "error: set too large (${CNT}>64000)" 
+   exit 1
+fi
+
+echo "creating temporary set"
+ipset create ${TEMPSET} hash:ip
+
+echo -n importing  $CNT  ips to temporary set....
+for IP in $(cat /tmp/${SETNAME}); do ipset add ${TEMPSET} ${IP}; done
+echo  done
+
+echo "swaping sets"
+#ipset swap ${TEMPSET} ${SETNAME}
+
+echo "cleaning up"
+ipset flush ${TEMPSET}
+ipset destroy ${TEMPSET}
+
+echo "all done"
+echo
+
+exit 0
